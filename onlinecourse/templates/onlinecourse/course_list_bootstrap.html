@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Online Courses</title>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username">
+                            <input type="password" class="form-control" placeholder="Password" name="psw">
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <h2>Popular courses</h2>
+        {% if course_list %}
+            <div class="card-deck">
+                {% for course in course_list %}
+                    <div class="card mt-2" style="max-width: 22rem;">
+                        {% if course.image %}
+                            <img class="card-img-top" src="{{ course.image.url }}" alt="{{ course.name }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.name }}</h5>
+                            <p class="card-text">{{ course.description }}</p>
+                            <p class="card-text"><small class="text-muted">{{ course.total_enrollment }} enrolled</small></p>
+                            {% if course.is_enrolled %}
+                                <a class="btn btn-primary" href="{% url 'onlinecourse:course_details' course.id %}">Continue</a>
+                            {% else %}
+                                <a class="btn btn-success" href="{% url 'onlinecourse:enroll' course.id %}">Enroll</a>
+                                <a class="btn btn-link" href="{% url 'onlinecourse:course_details' course.id %}">Details</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No courses are available. Add one in the <a href="/admin/">admin site</a>.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
